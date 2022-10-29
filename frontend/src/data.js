@@ -27,16 +27,19 @@ export const sliderItems = [
       id: 1,
       img: "https://images.pexels.com/photos/247206/pexels-photo-247206.jpeg?auto=compress&cs=tinysrgb&w=600",
       title: "SHIRT STYLE!",
+      cat:"women"
     },
     {
       id: 2,
       img: "https://images.pexels.com/photos/9226526/pexels-photo-9226526.jpeg?auto=compress&cs=tinysrgb&w=600",
       title: "LOUNGEWEAR LOVE",
+      cat:"man"
     },
     {
       id: 3,
       img: "https://images.pexels.com/photos/11048286/pexels-photo-11048286.jpeg?auto=compress&cs=tinysrgb&w=600",
       title: "LIGHT JACKETS",
+      cat:"shirt"
     },
   ];
 

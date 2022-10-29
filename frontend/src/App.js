@@ -1,12 +1,13 @@
 import Home from "./pages/Home";
-import {Routes, Route, Redirect} from "react-router-dom"
+import {Routes, Route} from "react-router-dom"
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProductList from "./pages/ProductList";
 import Product from "./pages/Product";
 import Cart from "./pages/Cart";
+import Success from "./pages/Success";
 function App() {
-  const user = true
+
   return (
     <Routes>
       <Route path="/" element={<Home />} />
@@ -16,6 +17,7 @@ function App() {
       <Route path="/products/:category" element={<ProductList/>} />
       <Route path="/product/:id" element={<Product/>} />
       <Route path="/cart" element={<Cart/>} />
+      <Route path="/success" element={<Success/>} />
     </Routes>
   );
 }

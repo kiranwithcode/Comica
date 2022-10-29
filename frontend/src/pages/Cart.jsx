@@ -5,7 +5,14 @@ import Navbar from "../components/Navbar";
 import Remove from "@mui/icons-material/Remove";
 import Add from "@mui/icons-material/Add";
 import { mobile } from "../responsive";
+import { useSelector } from "react-redux";
+import StripeCheckout from "react-stripe-checkout"
+import { useEffect, useState } from "react";
+import { userRequest } from "../requestMethods";
+import {useNavigate} from 'react-router-dom';
 
+
+const KEY = process.env.REACT_APP_STRIPE;
 const Container = styled.div``;
 const Wrapper = styled.div`
   padding: 20px;
@@ -144,7 +151,34 @@ const Button = styled.button`
   }
 `;
 
+
 const Cart = () => {
+
+  const cart = useSelector(state => state.cart)
+  const [stripeToken, setStripeToken] = useState(null)
+  const navigate = useNavigate()
+
+  const onToken = (token) =>{
+    setStripeToken(token)
+  }
+
+  
+  useEffect(() =>{
+    const makeRequest = async() =>{
+      try {
+        // const res = await axios.post("http://localhost:5000/api/checkout/payment",{
+          const res = await userRequest.post("/checkout/payment",{
+          tokenId : stripeToken.id,
+          amount : 500,
+        })
+        console.log(res);
+        navigate("/success", { replace:true, stripeData: res.data})
+      } catch {}
+    }
+    stripeToken && makeRequest();
+  
+  },[stripeToken, cart.total, navigate])
+
   return (
     <Container>
       <Navbar />
@@ -161,64 +195,44 @@ const Cart = () => {
         </Top>
         <Bottom>
           <Info>
-            <Product>
+            {
+              cart.products.map((product) =>(
+                <Product key={product._id}>
               <ProductDetail>
-                <Image src="https://m.media-amazon.com/images/I/71e73FTzV0L._AC_UL480_FMwebp_QL65_.jpg" />
+                <Image src={product.img} />
                 <Details>
                   <ProductName>
-                    <b>Product:</b> SILK BANARAS SAARI
+                    <b>Product:</b> {product.title}
                   </ProductName>
                   <ProductId>
-                    <b>ID:</b> 7854215478
+                    <b>ID:</b> {product._id}
                   </ProductId>
-                  <ProductColor color="black" />
+                  <ProductColor color={product.color} />
                   <ProductSize>
-                    <b>Size:</b> 26.5
+                    <b>Size:</b> {product.size}
                   </ProductSize>
                 </Details>
               </ProductDetail>
               <PriceDetail>
                 <ProductAmountContainer>
                   <Add />
-                  <ProductAmount>2</ProductAmount>
+                  <ProductAmount>{product.quantity}</ProductAmount>
                   <Remove />
                 </ProductAmountContainer>
-                <ProductPrice>$ 30</ProductPrice>
+                <ProductPrice>$ {product.price*product.quantity}</ProductPrice>
               </PriceDetail>
             </Product>
 
-            <Hr />
-            <Product>
-              <ProductDetail>
-                <Image src="https://m.media-amazon.com/images/I/51vfZ2m3lUL._AC_UL480_FMwebp_QL65_.jpg" />
-                <Details>
-                  <ProductName>
-                    <b>Product:</b> BOSS HOODI
-                  </ProductName>
-                  <ProductId>
-                    <b>ID:</b> 93813718293
-                  </ProductId>
-                  <ProductColor color="gray" />
-                  <ProductSize>
-                    <b>Size:</b> M
-                  </ProductSize>
-                </Details>
-              </ProductDetail>
-              <PriceDetail>
-                <ProductAmountContainer>
-                  <Add />
-                  <ProductAmount>1</ProductAmount>
-                  <Remove />
-                </ProductAmountContainer>
-                <ProductPrice>$ 20</ProductPrice>
-              </PriceDetail>
-            </Product>
+            ))
+            }
+          <Hr/>
+           
           </Info>
           <Summary>
             <SummaryTitle>ORDER SUMMARY</SummaryTitle>
               <SummaryItem>
                 <SummaryItemText>Subtotal</SummaryItemText>
-                <SummaryItemPrice>$ 80</SummaryItemPrice>
+                <SummaryItemPrice>${cart.total}</SummaryItemPrice>
               </SummaryItem>
               <SummaryItem>
                 <SummaryItemText>Estimated Shipping</SummaryItemText>
@@ -230,9 +244,20 @@ const Cart = () => {
               </SummaryItem>
               <SummaryItem type="total">
                 <SummaryItemText>Total</SummaryItemText>
-                <SummaryItemPrice>$ 80</SummaryItemPrice>
+                <SummaryItemPrice>$ {cart.total}</SummaryItemPrice>
               </SummaryItem>
-              <Button>CHECKOUT NOW</Button>
+              <StripeCheckout
+                name="Kamble Shop"
+                image="https://yt3.ggpht.com/yti/AJo0G0lRBllk3FBgR1_CqQwhC7SOwU33LnjxeRnhvOOACw=s88-c-k-c0x00ffffff-no-rj-mo"
+                billingAddress
+                shippingAddress
+                description={`Your total is $${cart.total}`}
+                amount={cart.total*100}
+                token={onToken}
+                stripeKey= {KEY}
+              >
+                <Button>CHECKOUT NOW</Button>
+              </StripeCheckout>
           </Summary>
         </Bottom>
       </Wrapper>
